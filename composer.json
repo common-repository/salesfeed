@@ -1,0 +1,70 @@
+{
+	"name": "pronamic/wp-salesfeed",
+	"type": "wordpress-plugin",
+	"description": "Add a SalesFeed tracking code to your WordPress site. You need a SalesFeed account.",
+	"keywords": [
+		"salesfeed",
+		"tracking",
+		"wordpress"
+	],
+	"homepage": "https://www.pronamic.eu/plugins/salesfeed/",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Remco Tolsma",
+			"email": "remco@pronamic.nl",
+			"homepage": "https://www.remcotolsma.nl/",
+			"role": "Developer"
+		},
+		{
+			"name": "Reüel van der Steege",
+			"email": "reuel@pronamic.nl",
+			"homepage": "https://www.reuel.nl/",
+			"role": "Developer"
+		}
+	],
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://wpackagist.org/"
+		}
+	],
+	"config": {
+		"platform": {
+			"php": "5.6.20"
+		},
+		"sort-packages": true,
+		"allow-plugins": {
+			"composer/installers": true,
+			"roots/wordpress-core-installer": true
+		}
+	},
+	"require": {
+		"php": ">=5.6.20",
+		"composer/installers": "^1.7"
+	},
+	"require-dev": {
+		"phpcompatibility/php-compatibility": "^9.3",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"roots/wordpress-no-content": "^5.3",
+		"wp-cli/wp-cli-bundle": "^2.11"
+	},
+	"scripts": {
+		"build": [
+			"rm -rf ./build",
+			"mkdir ./build",
+			"rsync --recursive --verbose --exclude-from=.gitignore --exclude-from=.distignore ./ ./build/",
+			"composer install --no-dev --prefer-dist --optimize-autoloader --working-dir=./build/",
+			"vendor/bin/wp i18n make-pot ./build/ --slug=salesfeed",
+			"vendor/bin/wp dist-archive ./build --plugin-dirname=salesfeed"
+		],
+		"dist-archive": "wp dist-archive . --plugin-dirname=salesfeed",
+		"make-pot": [
+			"@build",
+			"rsync --recursive --delete --verbose ./build/languages/ ./languages/"
+		],
+		"phpcbf": "vendor/bin/phpcbf",
+		"phpcs": "vendor/bin/phpcs -s -v",
+		"phplint": "find -L . -type f -path ./.git -prune -o -path ./deploy -prune -o -path ./node_modules -prune -o -path ./vendor -prune -o -path ./wordpress -prune -o -path ./wp-content -prune -o -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l -n"
+	}
+}
